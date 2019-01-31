@@ -18,7 +18,9 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/', async (req, res, next) => {
   try {
     await docker.command(
-      `run --rm --name docker-sandbox -e userCode="function(){return 1}" -m 20m --kernel-memory 4m --ulimit nproc=10 --cpus 0.25 bonbonbon/docker-sandbox`,
+      `run --rm --name docker-sandbox -e userCode="${
+        req.body.userCode
+      }" -m 20m --kernel-memory 4m --ulimit nproc=10 --cpus 0.25 bonbonbon/docker-sandbox`,
       function(err, data) {
         if (err) {
           console.error(err);
