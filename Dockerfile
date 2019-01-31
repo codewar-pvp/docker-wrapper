@@ -9,6 +9,9 @@ WORKDIR /usr/src/app
 # Build sandbox image
 RUN docker build -t bonbonbon/docker-sandbox ./docker-sandbox
 
+# Mount volume to share test results between sandbox and wrapper
+RUN docker volume create --name TestResultVolume
+
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)
 COPY package*.json ./

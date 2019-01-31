@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('fs');
 const express = require('express');
 const dockerCLI = require('docker-cli-js');
 const DockerOptions = dockerCLI.Options;
@@ -27,6 +28,7 @@ app.post('/', async (req, res, next) => {
           res.status(400).send('Bad Request: Script execution timed out.');
         } else {
           console.log(data.containerId);
+          fs.readFileSync();
           res.json(data.containerId.match('{(.*?)}')[0]);
         }
       }
