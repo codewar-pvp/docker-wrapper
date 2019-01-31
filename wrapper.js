@@ -1,7 +1,10 @@
 'use strict';
 
 const express = require('express');
-const axios = require('axios');
+const dockerCLI = require('docker-cli-js');
+const DockerOptions = dockerCLI.Options;
+const Docker = dockerCLI.Docker;
+const docker = new Docker();
 
 // Constants
 const PORT = process.env.PORT || 5000;
@@ -12,29 +15,29 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/', (req, res, next) => {
+app.post('/', async (req, res, next) => {
   try {
-    res.send('docker is running!');
+    await docker.command(
+      `run --rm --name docker-sandbox -e userCode="function(){return 1}" -m 20m --kernel-memory 4m --ulimit nproc=10 --cpus 0.25 bonbonbon/docker-sandbox`,
+      function(err, data) {
+        if (err) {
+          console.error(err);
+          res.status(400).send('Bad Request: Script execution timed out.');
+        } else {
+          console.log(data.containerId);
+          res.json(data.containerId.match('{(.*?)}')[0]);
+        }
+      }
+    );
   } catch (error) {
     console.error(error);
-    next(error);
+    res.status(500).send(error);
   }
 });
 
-// router.post('/', async (req, res, next) => {
-//   try {
-//     const result = vm.run(`(
-//             (${req.body.input})()`)
-//     res.json({
-//       output: result
-//     })
-//   } catch (err) {
-//     if (err.message === 'Script execution timed out.') {
-//       err.status = 400
-//     }
-//     next(err)
-//   }
-// })
+app.get('/', (req, res, next) => {
+  res.send('docker is running!');
+});
 
 app.listen(PORT);
 console.log(`Running on port ${PORT}`);
