@@ -11,3 +11,12 @@ const vm = new VM({
     },
   },
 });
+
+console.log(
+  vm.run(`(function() {
+      return {
+        userCodeResult: (${process.env.userCode})(),
+        userConsoleHistory: console.logHistory
+    }
+  })()`)
+);
