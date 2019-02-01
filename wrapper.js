@@ -1,9 +1,6 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
 const express = require('express');
-const uniqid = require('uniqid');
 const dockerCLI = require('docker-cli-js');
 const DockerOptions = dockerCLI.Options;
 const Docker = dockerCLI.Docker;
@@ -18,31 +15,31 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.post('/', async (req, res, next) => {
+app.post('/api/code', async (req, res, next) => {
   try {
-    const sandboxId = uniqid();
     await docker.command(
       `run --rm --name docker-sandbox -e userCode="${
         req.body.userCode
-      }" -e sandboxId="${sandboxId}" -v sharedVol:/usr/src/app/sharedVol -m 20m --kernel-memory 4m --ulimit nproc=10 --cpus 0.25 bonbonbon/docker-sandbox`,
+      }" -m 80m --kernel-memory 25m --ulimit nproc=15 --cpus 1 bonbonbon/docker-sandbox:latest`,
       function(err, data) {
         if (err) {
           console.error(err);
           res.status(400).send('Bad Request: Script execution timed out.');
         } else {
           console.log(data.containerId);
-          res.json();
-          // fs.readFileSync(path.join(__dirname, `sharedVol/testResult-${sandboxId}.json`));
-          // res.json(data.containerId.match('{(.*?)}')[0]);
-          // fs.unlinkSync(
-          //   path.join(__dirname, `sharedVol/testResult-${sandboxId}.json`)
-          // );
+          const result = data.containerId
+            .split('> node sandbox.js')[1]
+            .replace('\\n', '');
+          const parsedResult = JSON.parse(result);
+          res.send(parsedResult);
         }
       }
     );
   } catch (error) {
     console.error(error);
-    res.status(500).send(error);
+    if (error.name === 'SyntaxError') {
+      res.status(400).send('Bad Request: Script execution timed out.');
+    } else res.status(500).send(error);
   }
 });
 
