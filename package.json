@@ -8,9 +8,14 @@
     "start": "node wrapper.js"
   },
   "author": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codewar-pvp/docker-wrapper"
+  },
   "license": "ISC",
   "dependencies": {
     "docker-cli-js": "^2.5.1",
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "uniqid": "^5.0.3"
   }
 }
