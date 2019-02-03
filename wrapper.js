@@ -23,41 +23,28 @@ app.post('/api/code', async (req, res, next) => {
     const sandboxId = uniqid();
     console.log(sandboxId);
     const { apiKey, ...noApiKey } = req.body;
-    fs.writeFileSync(
-      `/vol/results-${sandboxId}.json`,
-      JSON.stringify(noApiKey)
-    );
+    console.log(noApiKey);
+    fs.writeFileSync(`/vol/userCode-${sandboxId}.js`, noApiKey.userCode);
+    fs.writeFileSync(`/vol/question.spec-${sandboxId}.js`, noApiKey.testSpecs);
     await docker.command(
       `run --rm --name docker-sandbox --volumes-from docker-wrapper -e sandboxId="${sandboxId}" bonbonbon/docker-sandbox:latest`,
       function(err, data) {
         if (err) {
           console.error(err);
-          // res.status(400).send('Bad Request: Script execution timed out.');
-          res
-            .status(400)
-            .sendFile(`/vol/results-${sandboxId}.txt`, null, function(fileErr) {
-              if (fileErr) {
-                next(fileErr);
-              } else {
-                console.log('file sent');
-              }
-              fs.unlinkSync(`/vol/results-${sandboxId}.json`);
-              fs.unlinkSync(`/vol/results-${sandboxId}.txt`);
-            });
         } else {
           console.log(data.containerId);
-          res.sendFile(`/vol/results-${sandboxId}.txt`, null, function(
-            fileErr
-          ) {
+        }
+        console.log(fs.readFileSync(`/vol/results-${sandboxId}.txt`));
+        res
+          .status(201)
+          .sendFile(`/vol/results-${sandboxId}.txt`, null, function(fileErr) {
             if (fileErr) {
               next(fileErr);
             } else {
-              console.log('file sent');
+              console.log(`sent /vol/results-${sandboxId}.txt`);
             }
-            fs.unlinkSync(`/vol/results-${sandboxId}.json`);
             fs.unlinkSync(`/vol/results-${sandboxId}.txt`);
           });
-        }
       }
     );
   } catch (error) {
@@ -67,8 +54,6 @@ app.post('/api/code', async (req, res, next) => {
     } else res.status(500).send(error);
   }
 });
-
-app.get('/', (req, res, next) => {});
 
 app.listen(PORT);
 console.log(`Running on port ${PORT}`);

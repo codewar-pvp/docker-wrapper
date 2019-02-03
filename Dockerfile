@@ -2,6 +2,8 @@ FROM node:8.15.0-alpine
 
 # Install app dependencies
 RUN apk add --update docker
+RUN apk add bash
+RUN apk add bash-completion
 
 # Create app directory
 WORKDIR /usr/src/app
