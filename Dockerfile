@@ -1,4 +1,4 @@
-FROM node:8.15.0-alpine
+FROM node:10.15.1-alpine
 
 # Install app dependencies
 RUN apk add --update docker
