@@ -31,20 +31,29 @@ app.post('/api/code', async (req, res, next) => {
       function(err, data) {
         if (err) {
           console.error(err);
+          res
+            .status(201)
+            .sendFile(`/vol/error-${sandboxId}.txt`, null, function(fileErr) {
+              if (fileErr) {
+                next(fileErr);
+              } else {
+                console.log(`sent /vol/error-${sandboxId}.txt`);
+              }
+              fs.unlinkSync(`/vol/error-${sandboxId}.txt`);
+            });
         } else {
           console.log(data.containerId);
+          res
+            .status(201)
+            .sendFile(`/vol/results-${sandboxId}.txt`, null, function(fileErr) {
+              if (fileErr) {
+                next(fileErr);
+              } else {
+                console.log(`sent /vol/results-${sandboxId}.txt`);
+              }
+              fs.unlinkSync(`/vol/results-${sandboxId}.txt`);
+            });
         }
-        console.log(fs.readFileSync(`/vol/results-${sandboxId}.txt`));
-        res
-          .status(201)
-          .sendFile(`/vol/results-${sandboxId}.txt`, null, function(fileErr) {
-            if (fileErr) {
-              next(fileErr);
-            } else {
-              console.log(`sent /vol/results-${sandboxId}.txt`);
-            }
-            fs.unlinkSync(`/vol/results-${sandboxId}.txt`);
-          });
       }
     );
   } catch (error) {
