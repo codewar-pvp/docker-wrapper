@@ -58,9 +58,7 @@ app.post('/api/code', async (req, res, next) => {
     );
   } catch (error) {
     console.error(error);
-    if (error.name === 'SyntaxError') {
-      res.status(400).send('Bad Request: Script execution timed out.');
-    } else res.status(500).send(error);
+    res.status(500).send(error);
   }
 });
 
