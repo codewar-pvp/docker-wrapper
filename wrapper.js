@@ -31,16 +31,6 @@ app.post('/api/code', async (req, res, next) => {
       function(err, data) {
         if (err) {
           console.error(err);
-          res
-            .status(201)
-            .sendFile(`/vol/error-${sandboxId}.txt`, null, function(fileErr) {
-              if (fileErr) {
-                next(fileErr);
-              } else {
-                console.log(`sent /vol/error-${sandboxId}.txt`);
-              }
-              fs.unlinkSync(`/vol/error-${sandboxId}.txt`);
-            });
         } else {
           console.log(data.containerId);
           res
